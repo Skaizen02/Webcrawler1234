@@ -7,10 +7,12 @@ con <- dbConnect(MySQL(), user="skaizen2", password="kzm38gw35f", dbname="webcra
 df <- dbReadTable(con, "titles")
 
 #Prepare dataframe for database write
-#df$id <- seq.int(length(df$titles))
+df$id <- seq.int(length(df$titles))
+
+table <- "webcrawler"
 
 #Overwrite table
-dbWriteTable(conn=con, name="titles", value=df, overwrite = TRUE)
+dbWriteTable(conn=con, name=table, value=df, row.names = FALSE, overwrite = TRUE)
 
 #Append to table
-dbWriteTable(conn=con, name="titles", value=df, append = TRUE)
+dbWriteTable(conn=con, name=table, value=df, row.names = TRUE, append = TRUE)
