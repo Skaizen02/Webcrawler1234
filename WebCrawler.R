@@ -73,11 +73,11 @@ crawler <- function(iterations, url, path) {
 
 parser <- function(links, limit = 0, step = 1) {
   df <- data.frame(url = unlist(links))
-  df$title <- list(NA)
-  df$tags <- list(NA)
-  df$views <- list(NA)
-  df$comments <- list(NA)
-  df$time <- list(NA)
+  df$title <- unlist(list(NA))
+  df$postTags <- unlist(list(NA))
+  df$views <- unlist(list(NA))
+  df$comments <- unlist(list(NA))
+  df$time <- unlist(list(NA))
   if (limit == 0) {
     l <- length(links)
   } else {
@@ -109,14 +109,15 @@ parser <- function(links, limit = 0, step = 1) {
     tags_nodes <- html_nodes(html, tagSelector)
     if (length(tags_nodes) > 0) {
       tags <- paste(lapply(tags_nodes, function(x) html_text(x)), collapse = ",")
-      df$tags[i] <- tags 
+      df$postTags[i] <- tags 
     }
     
     stats_node <- html_node(html, statsSelector)
     text <- html_text(stats_node)
     text <- stripWhitespace(text)
-    splitText<- unlist(strsplit(text, "[[:space:]]"))
+    splitText <- unlist(strsplit(text, "[[:space:]]"))
     len <- length(splitText)
+    df$text[i] <- text
     
     #Views
     df$views[i] <- as.integer(splitText[len-3])
@@ -126,7 +127,7 @@ parser <- function(links, limit = 0, step = 1) {
     
     #Time
     timestamp <- as.integer(Sys.time())
-    if (length(splitText) == 8) {
+    if (splitText[2] == "hours") {
       hours <- as.integer(splitText[1])
       postTime <- time - hours * 3600
       df$time[i] <- as.integer(postTime)
@@ -146,5 +147,6 @@ parser <- function(links, limit = 0, step = 1) {
   df$comments <- unlist(df$comments)
   df$time <- unlist(df$time)
   df <- subset(df, !is.na(title))
+  df$id <- seq.int(length(df$url))
   df
 }
